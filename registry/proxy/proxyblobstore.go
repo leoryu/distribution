@@ -22,6 +22,7 @@ type proxyBlobStore struct {
 	localStore     distribution.BlobStore
 	remoteStore    distribution.BlobService
 	scheduler      *scheduler.TTLExpirationScheduler
+	ttl            time.Duration
 	repositoryName reference.Named
 	authChallenger authChallenger
 }
@@ -150,7 +151,10 @@ func (pbs *proxyBlobStore) ServeBlob(ctx context.Context, w http.ResponseWriter,
 			return
 		}
 
-		pbs.scheduler.AddBlob(blobRef, repositoryTTL)
+		if pbs.scheduler != nil {
+			pbs.scheduler.AddBlob(blobRef, pbs.ttl)
+		}
+
 	}(dgst)
 
 	_, err = pbs.copyContent(ctx, dgst, w)
