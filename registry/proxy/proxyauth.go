@@ -59,7 +59,9 @@ func getAuthURLs(remoteURL string) ([]string, error) {
 
 	resp, err := http.Get(remoteURL + "/v2/")
 	if err != nil {
-		return nil, err
+		context.GetLogger(context.Background()).Warnf("get auth urls response faild: %v", err)
+		// default auth url for tencent ccr
+		return []string{remoteURL + "/service/token"}, nil
 	}
 	defer resp.Body.Close()
 
@@ -69,6 +71,7 @@ func getAuthURLs(remoteURL string) ([]string, error) {
 		}
 	}
 
+	context.GetLogger(context.Background()).Infof("auth urls is: %v", authURLs)
 	return authURLs, nil
 }
 
